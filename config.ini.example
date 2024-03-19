@@ -1,0 +1,7 @@
+[netbox]
+URI = https://netbox.example
+Token = abcdef
+
+[opengear]
+Username = netboxupdate
+Password = abcdef
