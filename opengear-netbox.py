@@ -10,7 +10,8 @@ import argparse
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-parser = argparse.ArgumentParser(description='Update the ports on an Opengear serial console with information from Netbox')
+parser = argparse.ArgumentParser(
+    description='Update the ports on an Opengear serial console with information from Netbox')
 parser.add_argument('--console', help='The hostname of the console')
 args = parser.parse_args()
 
@@ -38,6 +39,9 @@ for port in ports:
     if port['connected_endpoints'] is not None and len(port['connected_endpoints']) > 0:
         device_name = port['connected_endpoints'][0]['device']['name']
         print(port_api_name + " connected device: " + device_name)
+        port_speed = 115200
+        if port.speed is not None:
+            port_speed = port.speed.value
         new_serial_port = {
             "serialport": {
                 "label": device_name,
@@ -58,7 +62,7 @@ for port in ports:
                     "protocol": "RS232",
                     "uart": {
                         "parity": "none",
-                        "baud": "115200",
+                        "baud": str(port_speed),
                         "stopBits": "1",
                         "dataBits": "8",
                         "flowControl": "none",
@@ -75,6 +79,5 @@ for port in ports:
         r = session.patch(API_BASE_STRING + 'serialPorts/' + port_api_name, json=new_serial_port, headers={
             'Authorization': 'Token ' + opengear_token
         })
-        r.raise_for_status()        
+        r.raise_for_status()
         print(r.json())
-        
